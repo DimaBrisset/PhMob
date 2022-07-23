@@ -2,16 +2,16 @@
 {
     public class Contract
     {
-
         public int ContractNumber { get; }
-        public DateTime DateOfCreation { get; }
+
         public Tariff Tariff { get; private set; }
         internal DateTime DateChangeTariff { get; private set; }
         internal DateTime LastDateDebtCounted { get; private set; }
         internal decimal Balance { get; private set; }
+
         internal decimal Debt
         {
-            get { return _debt; }
+            get => _debt;
             set
             {
                 _debt = value;
@@ -23,6 +23,7 @@
                 }
             }
         }
+
         private decimal _debt;
 
         internal Contract(int contractNumber, Tariff tariff)
@@ -31,7 +32,6 @@
             Debt = 0.00M;
             ContractNumber = contractNumber;
             Tariff = tariff;
-            DateOfCreation = DateTime.Today;
             DateChangeTariff = DateTime.Today;
             LastDateDebtCounted = DateTime.Today;
         }
@@ -53,9 +53,9 @@
 
             else
             {
-                Console.WriteLine($"Refuce.You can change the tariff only once a month(next change date:  {DateChangeTariff.AddMonths(1).ToShortDateString()})");
+                Console.WriteLine(
+                    $"Refuce.You can change the tariff only once a month(next change date:  {DateChangeTariff.AddMonths(1).ToShortDateString()})");
             }
-
         }
 
         internal void PayBills(decimal sum)
@@ -70,25 +70,22 @@
             Debt -= sum;
 
 
-            if (Balance > 0)
+            if (Balance <= 0)
+                return;
+            Balance += Debt;
+
+            if (Balance <= 0)
             {
-                Balance += Debt;
-
-
-                if (Balance <= 0)
-                {
-                    Debt = Balance;
-                    Balance = 0;
-                }
-
-
-                else
-                {
-                    Debt = 0;
-                }
-
-                LastDateDebtCounted = DateTime.Now;
+                Debt = Balance;
+                Balance = 0;
             }
+
+            else
+            {
+                Debt = 0;
+            }
+
+            LastDateDebtCounted = DateTime.Now;
         }
     }
 }

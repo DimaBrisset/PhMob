@@ -8,9 +8,9 @@
 
         internal Terminal(string model)
         {
-            Name = model.ToString();
+            Name = model;
         }
-   
+
         public void ConnectPort(Port port)
         {
             if (_port != null)
@@ -19,7 +19,7 @@
                 return;
             }
 
-           
+
             _port = port;
             _port.ConnectTerminal(this);
             _port.RingNotify += Port_RingNotify;
@@ -47,6 +47,7 @@
                 Console.WriteLine("The device is not connected to the port!");
                 return;
             }
+
             _port.OutcomeCalling(number);
         }
 
@@ -55,7 +56,6 @@
             if (_port != null)
             {
                 _port.FinishTalking();
-
             }
         }
 

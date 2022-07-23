@@ -4,18 +4,15 @@ namespace PhMob
 {
     public class UI
     {
-          
-       public static void Menu(Station ats)
+        public static void Menu(Station ats)
         {
-         
             User[] abonents = CreateDogovors(ats, 3);
 
             bool isWorking = true;
 
             while (isWorking)
             {
-                Console.WriteLine();
-                Console.WriteLine();
+                Console.WriteLine("\n\n");
                 Console.WriteLine("1. Call to ");
                 Console.WriteLine("2. Show Balance  ");
                 Console.WriteLine("3. Add Balance");
@@ -30,7 +27,6 @@ namespace PhMob
 
                     switch (command)
                     {
-
                         case 1:
                             MakeDial(abonents);
                             break;
@@ -62,7 +58,6 @@ namespace PhMob
             }
         }
 
-
         private static void AddMoney(Station ats, User[] abonents)
         {
             Console.WriteLine("Port #:");
@@ -76,7 +71,6 @@ namespace PhMob
             amount = Math.Truncate(100 * amount) / 100;
             ats.AddMoney(currentAbonent.Contract, amount);
         }
-
 
         private static void ChangeTariff(User[] abonents)
         {
@@ -107,7 +101,6 @@ namespace PhMob
             currentAbonent.Contract.ChangeTariff(tariffs[current]);
         }
 
-
         private static void GetHistory(Station ats, User[] abonents)
         {
             Console.WriteLine("Port #");
@@ -116,17 +109,12 @@ namespace PhMob
 
             List<Call> history = ats.GetHistory(currentAbonent.Port.AbonentNumber);
 
-            if (history == null)
-            {
-                Console.WriteLine($"{currentAbonent.Port.AbonentNumber} - not faond");
-                return;
-            }
-
             Console.WriteLine("    Date   \t --\t \t Duration  \t Cost");
 
             foreach (var s in history)
             {
-                Console.WriteLine($"{s.StartDate} \t {s.AbonentFrom}=>{s.AbonentTo} \t {s.Duration:hh\\:mm\\:ss} \t {s.Amount}");
+                Console.WriteLine(
+                    $"{s.StartDate} \t {s.AbonentFrom}=>{s.AbonentTo} \t {s.Duration:hh\\:mm\\:ss} \t {s.Amount}");
             }
 
             bool isAlive = true;
@@ -134,15 +122,15 @@ namespace PhMob
             while (isAlive)
             {
                 Console.WriteLine(string.Empty);
-      
+
                 Console.WriteLine("Filters By:");
                 Console.WriteLine($"1.Date");
                 Console.WriteLine($"2.Amount");
                 Console.WriteLine($"3.Port# ");
                 Console.WriteLine($"4.Filter reset");
                 Console.WriteLine("5.Exit");
-               
-              
+
+
                 try
                 {
                     int command = Convert.ToInt32(Console.ReadLine());
@@ -173,7 +161,6 @@ namespace PhMob
             }
         }
 
-
         private static void ApplyFilter(List<Call> history, Filter filter)
         {
             List<Call> result = new();
@@ -190,10 +177,11 @@ namespace PhMob
                     var readString = Console.ReadLine();
                     if (readString != null)
                     {
-
-                        DateTime date = DateTime.ParseExact(readString.ToString(), "dd.MM.yy", CultureInfo.InvariantCulture);
+                        DateTime date = DateTime.ParseExact(readString, "dd.MM.yy",
+                            CultureInfo.InvariantCulture);
                         result = history.FindAll(x => x.StartDate.Date == date.Date);
                     }
+
                     break;
 
                 case Filter.FilterByAmount:
@@ -220,10 +208,9 @@ namespace PhMob
 
             foreach (var s in result)
             {
-                Console.WriteLine($"{s.StartDate} \t {s.AbonentFrom}=>{s.AbonentTo} \t {s.Duration:hh\\:mm\\:ss} \t {s.Amount}");
+                Console.WriteLine(
+                    $"{s.StartDate} \t {s.AbonentFrom}=>{s.AbonentTo} \t {s.Duration:hh\\:mm\\:ss} \t {s.Amount}");
             }
-
-
         }
 
         private static void GetBalance(User[] abonents)
@@ -245,15 +232,11 @@ namespace PhMob
             Console.ReadKey();
             abonent.Terminal.FinishDial();
             Console.ReadKey();
-
         }
-
-
-
 
         private static void MakeDial(User[] abonents)
         {
-            Console.WriteLine("Port #");
+            Console.WriteLine("what port to call from\nPort #");
             int number = Convert.ToInt32(Console.ReadLine());
 
             User abonent = abonents[number];
@@ -266,27 +249,6 @@ namespace PhMob
             Console.ReadKey();
         }
 
-
-        private static void SetTerminalToPorts(User[] abonents, bool isConnect)
-        {
-            Console.WriteLine("Port #");
-
-            int number = Convert.ToInt32(Console.ReadLine());
-
-            User currentAbonent = abonents[number];
-
-            if (isConnect)
-            {
-                currentAbonent.Terminal.ConnectPort(currentAbonent.Port);
-            }
-
-            else
-            {
-                currentAbonent.Terminal.DisconnectPort();
-            }
-        }
-
-
         private static User[] CreateDogovors(Station ats, int count)
 
         {
@@ -297,9 +259,8 @@ namespace PhMob
                 Contract contract = ats.CreateDogovor();
                 Port port = ats.GetPort(contract);
                 Terminal phone = ats.GetPhone();
-                phone.Ringing += Phone_Ringing;
+                phone.Ringing += PhoneRinging;
                 abonents[i] = new User(contract, port, phone);
-
             }
 
             Console.WriteLine();
@@ -309,7 +270,6 @@ namespace PhMob
             return abonents;
         }
 
-
         private static void ConnectTerminalsToPorts(User[] abonents)
         {
             for (int i = 0; i < abonents.Length; i++)
@@ -318,8 +278,7 @@ namespace PhMob
             }
         }
 
-
-        private static void Phone_Ringing(ITerminal sender, TerminalEventArgs e)
+        private static void PhoneRinging(ITerminal sender, TerminalEventArgs e)
         {
             Console.WriteLine($"{sender.Name}: {e.Message}");
             Console.WriteLine($"Replay- 1, Reset - key pressed");
@@ -334,6 +293,5 @@ namespace PhMob
 
             sender.SendAcceptCall(answer);
         }
-
     }
 }

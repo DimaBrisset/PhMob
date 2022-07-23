@@ -2,9 +2,8 @@
 {
     internal class Billing
     {
-
         private readonly List<Call> _journal = new();
-        internal static int LastPayDay { get { return 30; } }
+        internal static int LastPayDay => 30;
 
         internal void AddCallToJournal(Call call)
         {
@@ -23,29 +22,20 @@
             return debt >= 0;
         }
 
-
-        internal static decimal GetCallPrice(Tariff tariff, TimeSpan duration) => Convert.ToDecimal(duration.TotalSeconds) * tariff.Rate;
+        internal static decimal GetCallPrice(Tariff tariff, TimeSpan duration) =>
+            Convert.ToDecimal(duration.TotalSeconds) * tariff.Rate;
 
         internal decimal GetBillLastMonth(int dogovorNumber, DateTime firstDate, DateTime lastDate)
         {
-
-            var dateFilter = _journal.Where(x => x.StartDate >= firstDate & x.StartDate <= lastDate);
-            var abonentFilter = dateFilter.Where(x => x.DogovorNumber == dogovorNumber);
-
-            decimal amount = 0;
+            IEnumerable<Call> dateFilter = _journal.Where(x => x.StartDate >= firstDate & x.StartDate <= lastDate);
+            IEnumerable<Call> abonentFilter = dateFilter.Where(x => x.DogovorNumber == dogovorNumber);
 
 
-            foreach (var i in abonentFilter)
-            {
-                amount += i.Amount;
-            }
-
-            return amount;
+            return abonentFilter.Sum(i => i.Amount);
         }
 
         internal void CountDebtsForAbonents(IEnumerable<Contract> dogovors)
         {
-
             DateTime date = DateTime.Now.AddMonths(-1);
             DateTime firstDate = new(date.Year, date.Month, 1);
             DateTime lastDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1);

@@ -1,11 +1,13 @@
-﻿namespace PhMob
+﻿using System.Data;
+
+namespace PhMob
 {
     public class Station
     {
         public string Name { get; }
 
-        private static readonly Random random = new();
-        private readonly Random _random = random;
+        private static readonly Random Random = new();
+        private readonly Random _random = Random;
         private readonly Store _store = new();
         private (bool, Port) _acceptedCall;
         private readonly Billing _billing = new();
@@ -16,15 +18,11 @@
 
         public Station(string name)
         {
-
             Name = name;
             Console.WriteLine($"Station name:{Name}");
             InitializePorts();
             InitializeSystemNumbers();
-
         }
-
-
 
         public Contract CreateDogovor()
         {
@@ -39,24 +37,21 @@
 
             port.PortStatusChange(PortStatus.Disconnected);
             int portNumber = Array.IndexOf(_ports, port);
-            port.SetAbonentNumber(contractNumber, portNumber, 29000 + portNumber);
+            port.SetAbonentNumber(contractNumber, portNumber, 37500 + portNumber);
             _contracts.Add(contract);
             _contractMap.Add(contract, port);
             return contract;
         }
-
 
         public Phone GetPhone()
         {
             return _store.GetPhone();
         }
 
-
         public void CountDebts()
         {
             _billing.CountDebtsForAbonents(_contracts);
         }
-
 
         public Port GetPort(Contract contract)
         {
@@ -69,7 +64,6 @@
             return _billing.GetHistory(abonentNumber);
         }
 
-
         public void AddMoney(Contract contract, decimal amount)
         {
             Port port = _contractMap[contract];
@@ -77,31 +71,24 @@
             contract.PayBills(amount);
         }
 
-
         private void InitializePorts()
         {
-
-
             for (int i = 0; i < _ports.Length; i++)
             {
-
                 _ports[i] = new Port();
                 _ports[i].PortConnected += Station_PortConnected;
                 _ports[i].PortDisconnected += Station_PortDisconnected;
 
                 Thread.Sleep(50);
             }
+
             Console.WriteLine();
-
         }
-
 
         private void InitializeSystemNumbers()
         {
             _systemMethods.Add(120, ShowBalance);
-
         }
-
 
         private void ShowBalance(Contract contract)
         {
@@ -110,7 +97,8 @@
             Console.WriteLine($"Balance {port.AbonentNumber}: {balance} ");
             Console.WriteLine($"Debit is: {contract.Debt} ");
             Console.WriteLine($"Tariff: {contract.Tariff.Name} ( {contract.Tariff.Rate})");
-            Console.WriteLine($"The cost of services for the current month is calculated {Billing.LastPayDay} date of next month");
+            Console.WriteLine(
+                $"The cost of services for the current month is calculated {Billing.LastPayDay} date of next month");
         }
 
         private void Station_PortConnected(Port sender, PortEventArgs e)
@@ -121,7 +109,6 @@
             sender.PortStatusChange(PortStatus.Connected);
         }
 
-
         private void Station_PortDisconnected(Port sender, PortEventArgs e)
         {
             sender.OutcomeCall -= Sender_OutcomeCall;
@@ -129,7 +116,6 @@
             Console.WriteLine(e.Message);
             sender.PortStatusChange(PortStatus.Disconnected);
         }
-
 
         private void Sender_CallAccepted(Port sender, bool accept)
         {
@@ -141,14 +127,12 @@
             _acceptedCall = (accept, sender);
         }
 
-
         private void Sender_OutcomeCall(Port sender, PortEventArgs e)
         {
             Contract? dogovor = _contracts.FirstOrDefault(x => x.ContractNumber == sender.ContractNumber);
 
             if (dogovor != null)
             {
-
                 if (_systemMethods.ContainsKey(e.AbonentNumber))
                 {
                     _systemMethods[e.AbonentNumber](dogovor);
@@ -203,7 +187,6 @@
             {
                 Console.WriteLine($"Call rejected by subscriber {calledPort.AbonentNumber}");
             }
-
         }
 
         private async void Connection(Port callingPort, Port answerPort)
@@ -218,7 +201,6 @@
 
         private static void Talking(Port call, Port answer)
         {
-
             int i = 1;
 
             call.CancelTokenSource = new CancellationTokenSource();
@@ -251,7 +233,6 @@
 
         private void FinishDialog(Port callingPort, Port answerPort, DateTime timeStart)
         {
-
             DateTime timeFinish = DateTime.Now;
 
 
@@ -272,33 +253,34 @@
 
             Contract? contract = _contracts.FirstOrDefault(x => x.ContractNumber == callingPort.ContractNumber);
 
-            if (contract != null)
-            {
-                Tariff tariff = contract.Tariff;
+            if (contract == null)
+                return;
+            Tariff tariff = contract.Tariff;
 
-                decimal amount = Billing.GetCallPrice(tariff, timeFinish - timeStart);
-                amount = Math.Round(amount, 2);
-                Call call = new(contract.ContractNumber, tariff, timeStart, timeFinish, callingPort.AbonentNumber, answerPort.AbonentNumber, amount);
-                _billing.AddCallToJournal(call);
-                Console.WriteLine($"Call was finish. Cost {amount}");
-            }
+            decimal amount = Billing.GetCallPrice(tariff, timeFinish - timeStart);
+            amount = Math.Round(amount, 2);
+            Call call = new(contract.ContractNumber, tariff, timeStart, timeFinish, callingPort.AbonentNumber,
+                answerPort.AbonentNumber, amount);
+            _billing.AddCallToJournal(call);
+            Console.WriteLine($"Call was finish. Cost {amount}");
         }
 
         private Tariff RandomTariff()
         {
-            var baseType = typeof(Tariff);
-            var allDerivedTypes = baseType.Assembly.ExportedTypes.Where(t => baseType.IsAssignableFrom(t)).Where(t => t.IsAbstract == false).ToArray();
+            Type baseType;
+            baseType = typeof(Tariff);
+            Type[] allDerivedTypes = baseType.Assembly.ExportedTypes.Where(t => baseType.IsAssignableFrom(t))
+                .Where(t => t.IsAbstract == false).ToArray();
 
 
+            Tariff? tariff =
+                Activator.CreateInstance(
+                    Type.GetType(allDerivedTypes[_random.Next(0, allDerivedTypes.Length)].FullName) ) as Tariff;
 
-            var tariff = Activator.CreateInstance(Type.GetType(allDerivedTypes[_random.Next(0, allDerivedTypes.Length)].FullName)) as Tariff;
-
-            return tariff;
-
-
-
-
+            
+                return tariff;
+            
+            
         }
     }
 }
-

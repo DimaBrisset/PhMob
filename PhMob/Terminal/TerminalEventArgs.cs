@@ -5,12 +5,10 @@
     public class TerminalEventArgs : EventArgs
     {
         public string Message { get; }
+
         public TerminalEventArgs(string message)
         {
             Message = message;
         }
-
-      
-
     }
 }

@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PhMob
+﻿namespace PhMob
 {
     internal enum Filter
     {
-        
-            FilterByDate,
-            FilterByAmount,
-            FilterByAbonent,
-            FilterReset
-        
+        FilterByDate,
+        FilterByAmount,
+        FilterByAbonent,
+        FilterReset
     }
 }
