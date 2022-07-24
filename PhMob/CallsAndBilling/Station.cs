@@ -32,7 +32,7 @@ namespace PhMob
 
             if (port == null)
             {
-                throw new Exception(message: "Закончились свободные порты");
+                throw new Exception(message: "Did not free ports");
             }
 
             port.PortStatusChange(PortStatus.Disconnected);
@@ -269,7 +269,7 @@ namespace PhMob
         {
             Type baseType;
             baseType = typeof(Tariff);
-            Type[] allDerivedTypes = baseType.Assembly.ExportedTypes.Where(t => baseType.IsAssignableFrom(t))
+            Type[]? allDerivedTypes = baseType.Assembly.ExportedTypes.Where(t => baseType.IsAssignableFrom(t))
                 .Where(t => t.IsAbstract == false).ToArray();
 
 
